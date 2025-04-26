@@ -44,15 +44,6 @@ jobs:
           chmod +x kubectl
           mv kubectl /usr/local/bin/
 
-      - name: Configure Kubernetes Access
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        run: |
-          mkdir -p ~/.kube
-          echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
-          chmod 600 ~/.kube/config
-          kubectl cluster-info
-
       - name: Add Helm Repositories
         run: |
           helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
