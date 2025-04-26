@@ -1,27 +1,38 @@
+{{- if .Values.nextcloud.enabled }}
+{{- $color := include "deployment.color" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nextcloud
-  namespace: nextcloud
+  name: {{ include "fullname" . }}-nextcloud-{{ $color }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: nextcloud
+    deployment-color: {{ $color }}
+    {{- include "commonLabels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: nextcloud
+      deployment-color: {{ $color }}
   strategy:
+    {{- if eq .Values.deployment.strategy "rolling" }}
+    type: RollingUpdate
     rollingUpdate:
       maxSurge: 0
       maxUnavailable: 1
-    type: RollingUpdate
+    {{- else }}
+    type: Recreate
+    {{- end }}
   template:
     metadata:
       labels:
         app: nextcloud
+        deployment-color: {{ $color }}
+        {{- include "commonLabels" . | nindent 8 }}
     spec:
       containers:
-        - image: nextcloud:25.0.3-apache
+        - image: {{ .Values.nextcloud.image }}
           name: nextcloud
           ports:
             - containerPort: 80
@@ -35,39 +46,39 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: POSTGRES_DB
-                  name: nextcloud-secrets
+                  name: {{ .Values.global.secretName }}
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   key: POSTGRES_USER
-                  name: nextcloud-secrets
+                  name: {{ .Values.global.secretName }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: POSTGRES_PASSWORD
-                  name: nextcloud-secrets
+                  name: {{ .Values.global.secretName }}
             - name: NEXTCLOUD_ADMIN_USER
               valueFrom:
                 secretKeyRef:
                   key: NEXTCLOUD_ADMIN_USER
-                  name: nextcloud-secrets
+                  name: {{ .Values.global.secretName }}
             - name: NEXTCLOUD_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: NEXTCLOUD_ADMIN_PASSWORD
-                  name: nextcloud-secrets
+                  name: {{ .Values.global.secretName }}
             - name: NEXTCLOUD_TRUSTED_DOMAINS
-              value: nextcloud.local.cloud
+              value: {{ .Values.global.domain }}
             - name: NEXTCLOUD_DATA_DIR
               value: /mnt/data
             - name: APACHE_DISABLE_REWRITE_IP
               value: "1"
             - name: OVERWRITEHOST
-              value: nextcloud.local.cloud
+              value: {{ .Values.global.domain }}
             - name: OVERWRITEPROTOCOL
               value: https
             - name: OVERWRITECLIURL
-              value: https://nextcloud.local.cloud
+              value: https://{{ .Values.global.domain }}
             - name: OVERWRITEWEBROOT
               value: "/"
             - name: PHP_MEMORY_LIMIT
@@ -75,7 +86,7 @@ spec:
             - name: PHP_UPLOAD_LIMIT
               value: 1G
             - name: TZ
-              value: Europe/Kaliningrad
+              value: {{ .Values.global.timezone }}
           volumeMounts:
             - mountPath: /var/www/html
               name: nextcloud-storage
@@ -86,7 +97,8 @@ spec:
       volumes:
         - name: nextcloud-storage
           persistentVolumeClaim:
-            claimName: nextcloud-pvc
+            claimName: {{ include "fullname" . }}-nextcloud-pvc
         - name: nextcloud-storage-nfs
           persistentVolumeClaim:
-            claimName: nextcloud-pvc-nfs
+            claimName: {{ include "fullname" . }}-nextcloud-pvc-nfs
+{{- end }}

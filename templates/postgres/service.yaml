@@ -1,8 +1,9 @@
+{{- if .Values.postgresql.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   name: postgresql
-  namespace: nextcloud
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: postgresql
 spec:
@@ -11,3 +12,4 @@ spec:
     - port: 5432
   selector:
     app: postgresql
+{{- end }}

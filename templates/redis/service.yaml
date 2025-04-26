@@ -1,8 +1,9 @@
+{{- if .Values.redis.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   name: redis
-  namespace: nextcloud
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: redis
 spec:
@@ -10,3 +11,4 @@ spec:
     - port: 6379
   selector:
     app: redis
+{{- end }}

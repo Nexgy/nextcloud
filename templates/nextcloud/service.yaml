@@ -1,0 +1,15 @@
+{{- if .Values.nextcloud.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: nextcloud
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: nextcloud
+    deployment-color: {{ .Values.deployment.activeColor }}
+{{- end }}

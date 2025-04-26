@@ -1,0 +1,20 @@
+{{- if eq .Values.deployment.strategy "blue-green" }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "fullname" . }}-db-migrate-{{ .Values.deployment.activeColor }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "5"
+spec:
+  template:
+    spec:
+      containers:
+        - name: migrator
+          image: {{ .Values.nextcloud.image }}
+          command: ["/bin/sh", "-c", "php /var/www/html/occ db:migrate"]
+          envFrom:
+            - secretRef:
+                name: {{ .Values.global.secretName }}
+      restartPolicy: Never
+{{- end }}

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: nextcloud
+description: Nextcloud Helm Chart
+version: 0.1.0
+appVersion: "25.0.3"
+dependencies:
+  - name: sealed-secrets
+    version: "2.13.2"
+    repository: "https://bitnami-labs.github.io/sealed-secrets"

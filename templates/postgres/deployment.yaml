@@ -1,8 +1,9 @@
+{{- if .Values.postgresql.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgresql
-  namespace: nextcloud
+  name: {{ include "fullname" . }}-postgresql
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: postgresql
 spec:
@@ -17,7 +18,7 @@ spec:
     spec:
       containers:
         - name: postgresql
-          image: postgres:15
+          image: {{ .Values.postgresql.image }}
           ports:
             - containerPort: 5432
           env:
@@ -39,11 +40,12 @@ spec:
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
             - name: TZ
-              value: Europe/Kaliningrad
+              value: {{ .Values.global.timezone }}
           volumeMounts:
             - name: postgresql-data
               mountPath: /var/lib/postgresql/data
       volumes:
         - name: postgresql-data
           persistentVolumeClaim:
-            claimName: postgresql-pvc
+            claimName: {{ include "fullname" . }}-postgresql-pvc
+{{- end }}

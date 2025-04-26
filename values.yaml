@@ -1,0 +1,39 @@
+global:
+  namespace: nextcloud
+  timezone: Europe/Kaliningrad
+  domain: nextcloud.local.cloud
+  storageClass: local-path
+  secretName: nextcloud-secrets
+
+deployment:
+  strategy: blue-green
+  activeColor: blue
+  blue:
+    version: "1.0.0"
+  green:
+    version: "1.0.1"
+
+redis:
+  enabled: true
+  image: redis:alpine
+  pvc:
+    size: 1Gi
+
+postgresql:
+  enabled: true
+  image: postgres:15
+  pvc:
+    size: 5Gi
+
+nextcloud:
+  image: nextcloud:25.0.3-apache
+  pvc:
+    size: 5Gi
+    nfsSize: 40Gi
+  resources:
+    memoryLimit: 4G
+    uploadLimit: 1G
+
+certManager:
+  enabled: true
+  clusterIssuerEmail: ku4mar.max@gmail.com
