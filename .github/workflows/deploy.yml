@@ -20,11 +20,15 @@ jobs:
           ./get_helm.sh
 
       - name: Lint Helm Chart
-        run: helm lint ./helm
+        run: |
+          cd helm
+          helm dependency build  # Сборка зависимостей
+          helm lint .
+          cd ..
 
   deploy:
     needs: lint
-    runs-on: self-hosted  # Ваш self-hosted раннер
+    runs-on: self-hosted
     environment: production
     steps:
       - name: Checkout code
@@ -32,24 +36,13 @@ jobs:
 
       - name: Install Helm and kubectl
         run: |
-          # Установка Helm
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
           chmod 700 get_helm.sh
           ./get_helm.sh
 
-          # Установка kubectl
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-
-      - name: Configure Kubernetes Access
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        run: |
-          mkdir -p ~/.kube
-          echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
-          chmod 600 ~/.kube/config
-          kubectl cluster-info  # Проверка подключения
+          mv kubectl /usr/local/bin/
 
       - name: Add Helm Repositories
         run: |
@@ -65,4 +58,4 @@ jobs:
             --set redis.enabled=true \
             --set postgresql.enabled=true \
             --set certManager.enabled=true \
-            --set deployment.strategy=blue-green
+            --set deployment.strategy=blue-green \
