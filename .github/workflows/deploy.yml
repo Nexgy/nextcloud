@@ -13,27 +13,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
       - name: Lint Helm Chart
-        uses: azure/setup-helm@v3
-        with:
-          version: "3.12.0"
         run: helm lint ./helm
 
   deploy:
     needs: lint
-    runs-on: self-hosted
+    runs-on: self-hosted  # Ваш self-hosted раннер
     environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Helm and kubectl
-        uses: azure/setup-helm@v3
-        with:
-          version: "3.12.0"
+      - name: Install Helm and kubectl
         run: |
-          helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
-          helm repo update
+          # Установка Helm
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
+          # Установка kubectl
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
 
       - name: Configure Kubernetes Access
         env:
@@ -42,6 +49,12 @@ jobs:
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
+          kubectl cluster-info  # Проверка подключения
+
+      - name: Add Helm Repositories
+        run: |
+          helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+          helm repo update
 
       - name: Deploy Nextcloud
         run: |
