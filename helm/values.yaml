@@ -1,17 +1,12 @@
 global:
   namespace: nextcloud
   timezone: Europe/Kaliningrad
-  domain: nextcloud.local.cloud
+  domain: nextcloud.local
   storageClass: local-path
   secretName: nextcloud-secrets
 
 deployment:
-  strategy: blue-green
-  activeColor: blue
-  blue:
-    version: "1.0.0"
-  green:
-    version: "1.0.1"
+  strategy: RollingUpdate
 
 redis:
   enabled: true

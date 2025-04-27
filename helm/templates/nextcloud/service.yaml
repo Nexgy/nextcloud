@@ -11,5 +11,4 @@ spec:
     - port: 80
   selector:
     app: nextcloud
-    deployment-color: {{ .Values.deployment.activeColor }}
 {{- end }}

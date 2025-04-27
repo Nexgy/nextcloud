@@ -8,11 +8,3 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- define "fullname" -}}
 {{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-
-{{- define "deployment.color" -}}
-{{- if eq .Values.deployment.strategy "blue-green" -}}
-{{- .Values.deployment.activeColor -}}
-{{- else -}}
-default
-{{- end -}}
-{{- end -}}
