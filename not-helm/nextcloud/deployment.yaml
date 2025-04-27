@@ -11,15 +11,24 @@ spec:
     matchLabels:
       app: nextcloud
   strategy:
+    type: RollingUpdate
     rollingUpdate:
       maxSurge: 0
       maxUnavailable: 1
-    type: RollingUpdate
   template:
     metadata:
       labels:
         app: nextcloud
     spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 33:33 /mnt/data /var/www/html && chmod 0770 /mnt/data /var/www/html"]
+          volumeMounts:
+            - mountPath: /mnt/data
+              name: nextcloud-storage-nfs
+            - mountPath: /var/www/html
+              name: nextcloud-storage
       containers:
         - image: nextcloud:25.0.3-apache
           name: nextcloud
