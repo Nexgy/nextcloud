@@ -26,7 +26,7 @@ spec:
       initContainers:
         - name: fix-permissions
           image: busybox
-          command: ["sh", "-c", "chmod 0770 /mnt/data"]
+          command: ["sh", "-c", "chown -R 33:33 /mnt/data && chmod 0770 /mnt/data"]
           volumeMounts:
             - mountPath: /mnt/data
               name: nextcloud-storage-nfs
