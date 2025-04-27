@@ -16,16 +16,15 @@ jobs:
       - name: Install Helm
         run: |
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-          chmod 700 get_helm.sh
+          chmod +x get_helm.sh
           ./get_helm.sh
 
       - name: Lint Helm Chart
         run: |
           cd helm
-          helm dependency build  # Сборка зависимостей
+          helm dependency build
           helm lint .
-          cd ..
-
+  
   deploy:
     needs: lint
     runs-on: self-hosted
@@ -36,22 +35,29 @@ jobs:
 
       - name: Install Helm and kubectl
         run: |
-          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-          chmod 700 get_helm.sh
-          ./get_helm.sh
-
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          mv kubectl /usr/local/bin/
+          if ! command -v helm >/dev/null 2>&1; then
+            curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+            chmod +x get_helm.sh
+            ./get_helm.sh
+          fi
+          if ! command -v kubectl >/dev/null 2>&1; then
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            mv kubectl /usr/local/bin/
+          fi
 
       - name: Configure Kubernetes Access
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
           mkdir -p ~/.kube
-          echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+          echo "$KUBE_CONFIG" | base64 --decode --ignore-garbage > ~/.kube/config
           chmod 600 ~/.kube/config
+          echo "::add-mask::$(cat ~/.kube/config)"
+          echo " Kubeconfig written."
+          echo " Checking Kubernetes access..."
           kubectl cluster-info
+          kubectl get nodes
 
       - name: Add Helm Repositories
         run: |
@@ -68,3 +74,4 @@ jobs:
             --set postgresql.enabled=true \
             --set certManager.enabled=true \
             --set deployment.strategy=blue-green \
+            --wait --timeout 5m
