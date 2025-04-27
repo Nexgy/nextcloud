@@ -79,10 +79,8 @@ spec:
           volumeMounts:
             - mountPath: /var/www/html
               name: nextcloud-storage
-              readOnly: false
             - mountPath: /mnt/data
               name: nextcloud-storage-nfs
-              readOnly: false
       volumes:
         - name: nextcloud-storage
           persistentVolumeClaim:
