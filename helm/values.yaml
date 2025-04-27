@@ -1,7 +1,7 @@
 global:
   namespace: nextcloud
   timezone: Europe/Kaliningrad
-  domain: nextcloud.local
+  domain: nextcloud.local.cloud
   storageClass: local-path
   secretName: nextcloud-secrets
 
