@@ -23,6 +23,13 @@ spec:
         app: nextcloud  # Метки без цвета
         {{- include "commonLabels" . | nindent 8 }}
     spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chmod 0770 /mnt/data"]
+          volumeMounts:
+            - mountPath: /mnt/data
+              name: nextcloud-storage-nfs
       containers:
         - image: {{ .Values.nextcloud.image }}
           name: nextcloud

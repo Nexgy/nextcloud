@@ -21,6 +21,7 @@ postgresql:
     size: 5Gi
 
 nextcloud:
+  enabled: true
   image: nextcloud:25.0.3-apache
   pvc:
     size: 5Gi
