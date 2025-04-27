@@ -23,4 +23,11 @@ spec:
           env:
             - name: TZ
               value: Europe/Kaliningrad
+          volumeMounts:
+            - name: redis-storage
+              mountPath: /data
+      volumes:
+        - name: redis-storage
+          persistentVolumeClaim:
+            claimName: redis-pvc
       restartPolicy: Always
