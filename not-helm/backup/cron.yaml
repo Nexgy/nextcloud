@@ -32,11 +32,12 @@ spec:
             - /bin/bash
             - -c
             - |
+              mkdir -p /backup
               pg_dump -h postgresql -U $PGUSER $PGDB > /backup/backup_$(date +%F).sql
               find /backup/ -type f -mtime +7 -exec rm -f {} \;
-              volumeMounts:
-                - name: backup-volume
-                  mountPath: /backup
+            volumeMounts:
+              - name: backup-volume
+                mountPath: /backup
           restartPolicy: OnFailure
           volumes:
             - name: backup-volume
