@@ -36,9 +36,12 @@ spec:
               - /bin/bash
               - -c
               - |
+                echo "Начало бэкапа..."
                 mkdir -p /backup
                 pg_dump -h postgresql -U $PGUSER $PGDB > /backup/backup_$(date +%F).sql
+                echo "Бэкап создан: /backup/backup_$(date +%F).sql"
                 find /backup/ -type f -mtime +7 -exec rm -f {} \;
+                echo "Старые бэкапы удалены"
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
