@@ -27,7 +27,7 @@ spec:
                   secretKeyRef:
                     name: nextcloud-secrets
                     key: POSTGRES_USER
-              - name: PGDB
+              - name: PGDATABASE
                 valueFrom:
                   secretKeyRef:
                     name: nextcloud-secrets
@@ -38,7 +38,7 @@ spec:
               - |
                 echo "Начало бэкапа..."
                 mkdir -p /backup
-                pg_dump -h postgresql -U $PGUSER $PGDB > /backup/backup_$(date +%F).sql
+                pg_dump -h postgresql -U $PGUSER $PGDATABASE > /backup/backup_$(date +%F).sql
                 echo "Бэкап создан: /backup/backup_$(date +%F).sql"
                 find /backup/ -type f -mtime +7 -exec rm -f {} \;
                 echo "Старые бэкапы удалены"
