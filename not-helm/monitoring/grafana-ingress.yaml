@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: loki-stack-grafana
+  namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: grafana.monitoring.local.cloud
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: loki-stack-grafana
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - grafana.monitoring.local.cloud
+      secretName: grafana-tls
