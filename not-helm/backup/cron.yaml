@@ -9,9 +9,13 @@ spec:
     spec:
       template:
         spec:
+          securityContext:
+            fsGroup: 1001
           containers:
           - name: backup
             image: postgres:15
+            securityContext:
+              runAsUser: 1001
             env:
               - name: PGPASSWORD
                 valueFrom:
@@ -38,9 +42,6 @@ spec:
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
-            securityContext:
-              runAsUser: 1001
-              fsGroup: 1001
           restartPolicy: OnFailure
           volumes:
             - name: backup-volume
