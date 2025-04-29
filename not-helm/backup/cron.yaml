@@ -13,31 +13,34 @@ spec:
           - name: backup
             image: postgres:15
             env:
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: nextcloud-secrets
-                  key: POSTGRES_PASSWORD
-            - name: PGUSER
-              valueFrom:
-                secretKeyRef:
-                  name: nextcloud-secrets
-                  key: POSTGRES_USER
-            - name: PGDB
-              valueFrom:
-                secretKeyRef:
-                  name: nextcloud-secrets
-                  key: POSTGRES_DB
+              - name: PGPASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: nextcloud-secrets
+                    key: POSTGRES_PASSWORD
+              - name: PGUSER
+                valueFrom:
+                  secretKeyRef:
+                    name: nextcloud-secrets
+                    key: POSTGRES_USER
+              - name: PGDB
+                valueFrom:
+                  secretKeyRef:
+                    name: nextcloud-secrets
+                    key: POSTGRES_DB
             command:
-            - /bin/bash
-            - -c
-            - |
-              mkdir -p /backup
-              pg_dump -h postgresql -U $PGUSER $PGDB > /backup/backup_$(date +%F).sql
-              find /backup/ -type f -mtime +7 -exec rm -f {} \;
+              - /bin/bash
+              - -c
+              - |
+                mkdir -p /backup
+                pg_dump -h postgresql -U $PGUSER $PGDB > /backup/backup_$(date +%F).sql
+                find /backup/ -type f -mtime +7 -exec rm -f {} \;
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
+            securityContext:
+              runAsUser: 1001
+              fsGroup: 1001
           restartPolicy: OnFailure
           volumes:
             - name: backup-volume
