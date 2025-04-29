@@ -29,7 +29,5 @@ nextcloud:
   resources:
     memoryLimit: 4G
     uploadLimit: 1G
-
-certManager:
+ingress:
   enabled: true
-  clusterIssuerEmail: ku4mar.max@gmail.com
