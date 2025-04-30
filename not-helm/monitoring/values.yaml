@@ -1,10 +1,17 @@
+prometheus:
+  enabled: true
+  isDefault: false
+  url: http://{{ include "prometheus.fullname" .}}:{{ .Values.prometheus.server.service.servicePort }}{{ .Values.prometheus.server.prefixURL }}
+  datasource:
+    jsonData: "{}"
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    size: 5Gi
+
 loki:
   enabled: true
   isDefault: true
-  config:
-    auth_enabled: false
-    limits_config:
-      volume_enabled: true
   url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}
   readinessProbe:
     httpGet:
@@ -41,7 +48,7 @@ grafana:
       enabled: true
       maxLines: 1000
   image:
-    tag: 10.0.2  # заменено на нужную версию
+    tag: latest
   persistence:
     enabled: true
     storageClassName: local-path
@@ -55,14 +62,3 @@ grafana:
     pathType: Prefix
     hosts:
       - grafana.monitoring.local.cloud
-
-prometheus:
-  enabled: true
-  isDefault: false
-  url: http://{{ include "prometheus.fullname" .}}:{{ .Values.prometheus.server.service.servicePort }}{{ .Values.prometheus.server.prefixURL }}
-  datasource:
-    jsonData: "{}"
-  persistence:
-    enabled: true
-    storageClassName: local-path
-    size: 5Gi
