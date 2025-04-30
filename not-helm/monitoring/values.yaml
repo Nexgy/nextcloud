@@ -24,7 +24,6 @@ loki:
     storageClassName: local-path
     size: 5Gi
 
-
 promtail:
   enabled: true
   config:
@@ -42,7 +41,7 @@ grafana:
       enabled: true
       maxLines: 1000
   image:
-    tag: latest
+    tag: 10.0.2  # заменено на нужную версию
   persistence:
     enabled: true
     storageClassName: local-path
@@ -56,7 +55,6 @@ grafana:
     pathType: Prefix
     hosts:
       - grafana.monitoring.local.cloud
-
 
 prometheus:
   enabled: true
