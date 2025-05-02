@@ -1,7 +1,7 @@
 prometheus:
   enabled: true
   isDefault: false
-  url: http://{{ include "prometheus.fullname" .}}:{{ .Values.prometheus.server.service.servicePort }}{{ .Values.prometheus.server.prefixURL }}
+  url: http://{{ include "prometheus.fullname" . }}:{{ .Values.prometheus.server.service.servicePort }}
   datasource:
     jsonData: "{}"
   persistence:
@@ -28,7 +28,7 @@ loki:
     uid: "loki"
   persistence:
     enabled: true
-    storageClassName: local-path
+    storageClassName: local-path 
     size: 5Gi
 
 promtail:
@@ -37,7 +37,7 @@ promtail:
     logLevel: info
     serverPort: 3101
     clients:
-      - url: http://{{ .Release.Name }}-loki:3100/loki/api/v1/push
+      - url: http://{{ .Release.Name }}-loki.{{ .Release.Namespace }}.svc.cluster.local:3100/loki/api/v1/push
 
 grafana:
   enabled: true
