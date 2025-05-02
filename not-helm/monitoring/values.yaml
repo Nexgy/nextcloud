@@ -1,25 +1,11 @@
-prometheus:
-  enabled: true
-  isDefault: false
-  url: http://{{ include "prometheus.fullname" . }}:{{ .Values.prometheus.server.service.servicePort }}
-  datasource:
-    jsonData: "{}"
-  persistence:
-    enabled: true
-    storageClassName: local-path
-    size: 5Gi
-
 loki:
   enabled: true
   isDefault: true
-  url: http://{{ include "loki.serviceName" . }}:{{ .Values.loki.service.port }}
-  storage:
-    type: filesystem
-    bucketNames:
-      chunks: "loki-chunks"
-      ruler: "loki-ruler"
-    filesystem:
-      directory: /var/loki/storage
+  config:
+    auth_enabled: false
+    limits_config:
+      volume_enabled: true
+  url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}
   readinessProbe:
     httpGet:
       path: /ready
@@ -32,13 +18,12 @@ loki:
     initialDelaySeconds: 45
   datasource:
     jsonData: "{}"
-    uid: "loki"
+    uid: ""
   persistence:
     enabled: true
     storageClassName: local-path
     size: 5Gi
-  # Добавлено для переходного режима
-  deploymentMode: "SingleBinary<->SimpleScalable"  # Добавлена настройка для корректной работы
+
 
 promtail:
   enabled: true
@@ -46,18 +31,18 @@ promtail:
     logLevel: info
     serverPort: 3101
     clients:
-      - url: http://{{ .Release.Name }}-loki.{{ .Release.Namespace }}.svc.cluster.local:3100/loki/api/v1/push
+      - url: http://{{ .Release.Name }}-loki:3100/loki/api/v1/push
 
 grafana:
   enabled: true
   sidecar:
     datasources:
       label: ""
-      labelValue: ""
+labelValue: ""
       enabled: true
       maxLines: 1000
   image:
-    tag: 10.0.2
+    tag: latest
   persistence:
     enabled: true
     storageClassName: local-path
@@ -71,3 +56,15 @@ grafana:
     pathType: Prefix
     hosts:
       - grafana.monitoring.local.cloud
+
+
+prometheus:
+  enabled: true
+  isDefault: false
+  url: http://{{ include "prometheus.fullname" .}}:{{ .Values.prometheus.server.service.servicePort }}{{ .Values.prometheus.server.prefixURL }}
+  datasource:
+    jsonData: "{}"
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    size: 5Gi
