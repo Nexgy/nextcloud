@@ -13,13 +13,13 @@ loki:
   enabled: true
   isDefault: true
   url: http://{{ include "loki.serviceName" . }}:{{ .Values.loki.service.port }}
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
   storage:
     type: filesystem
-    bucketNames:
-      chunks: "loki-chunks"
-      ruler: "loki-ruler"
     filesystem:
-      directory: /var/loki/storage
+      directory: /var/loki
   readinessProbe:
     httpGet:
       path: /ready
@@ -33,9 +33,12 @@ loki:
   datasource:
     jsonData: "{}"
     uid: "loki"
+
+singleBinary:
+  replicas: 1
   persistence:
     enabled: true
-    storageClassName: local-path
+    storageClass: local-path
     size: 5Gi
 
 promtail:
